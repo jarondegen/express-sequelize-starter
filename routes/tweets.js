@@ -1,23 +1,25 @@
 const express = require('express')
 const tweetsRouter = express.Router();
 const db = require('../db/models');
-const { Tweet } = db;
+const { Tweet, User } = db;
 const { check, validationResult} = require('express-validator');
 const { asyncHandler, handleValidationErrors } = require("../utils");
 const { requireAuth } = require("../auth");
 tweetsRouter.use(requireAuth);
+
 const tweetNotFoundError = (tweetId) => {
   const err = new Error('The requested resource couldn\'t be found.');
   err.title = 'Tweet not found.';
   err.status = 404;
   err.errors = ['Tweet not found.']
   return err
-}
-
+};
 
 tweetsRouter.get('/', asyncHandler(async (req,res,next)=> {
   const tweets = await Tweet.findAll({
-    order: ["updatedAt"],
+    include: [{ model: User, as: "user", attributes: ["username"] }],
+    order: [["createdAt", "DESC"]],
+    attributes: ["message"],
   });
 
   res.json({tweets});
@@ -45,9 +47,10 @@ const validator = [
 ]
 
 tweetsRouter.post('/', validator, asyncHandler(async(req,res,next)=>{
-  const newTweet = await Tweet.create(req.body)
+  const {message} = req.body
+  const newTweet = await Tweet.create({ message, userId: req.user.id });
   res.json({newTweet})
-}))
+}));
 
 tweetsRouter.put('/:id(\\d+)', validator, asyncHandler(async (req,res,next)=>{
   const tweetId = req.params.id

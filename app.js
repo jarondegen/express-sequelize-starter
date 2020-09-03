@@ -3,13 +3,15 @@ const morgan = require("morgan");
 const { environment } = require('./config');
 const app = express();
 const indexRouter = require('./routes/index');
-const tweetsRouter = require('./routes/tweets')
+const tweetsRouter = require('./routes/tweets');
+const userRouter = require('./routes/users')
 const cors = require('cors')
 app.use(cors({ origin: "http://localhost:4000" }));
 app.use(morgan("dev"));
-app.use(express.json())
-app.use('/index/', indexRouter)
-app.use('/tweets/', tweetsRouter)
+app.use(express.json());
+app.use('/index/', indexRouter);
+app.use('/tweets/', tweetsRouter);
+app.use('/users', userRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the express-sequelize-starter!");
@@ -21,8 +23,6 @@ app.use((req, res, next) => {
   err.status = 404;
   next(err);
 });
-
-// Custom error handlers.
 
 // Generic error handler.
 app.use((err, req, res, next) => {

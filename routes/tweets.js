@@ -4,7 +4,8 @@ const db = require('../db/models');
 const { Tweet } = db;
 const { check, validationResult} = require('express-validator');
 const { asyncHandler, handleValidationErrors } = require("../utils");
-
+const { requireAuth } = require("../auth");
+tweetsRouter.use(requireAuth);
 const tweetNotFoundError = (tweetId) => {
   const err = new Error('The requested resource couldn\'t be found.');
   err.title = 'Tweet not found.';
@@ -18,7 +19,7 @@ tweetsRouter.get('/', asyncHandler(async (req,res,next)=> {
   const tweets = await Tweet.findAll({
     order: ["updatedAt"],
   });
-  
+
   res.json({tweets});
 }));
 

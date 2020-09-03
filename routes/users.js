@@ -5,7 +5,7 @@ const { asyncHandler, handleValidationErrors } = require('../utils');
 const bcrypt = require('bcryptjs');
 const db = require('../db/models');
 const { User } = db
-const getUserToken = require('../auth')
+const { getUserToken }= require('../auth')
 
 const validateUsername =
   check("username")
@@ -31,7 +31,7 @@ userRouter.post(
       const { username, email, password } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await User.create({ username, email, hashedPassword });
-  
+
       const token = getUserToken(user);
       res.status(201).json({
         user: { id: user.id },
